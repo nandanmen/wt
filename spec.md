@@ -1,6 +1,6 @@
 # `wt`
 
-`wt` is a CLI for managing worktrees. It has two commands:
+`wt` is a CLI for managing worktrees. It has three commands:
 
 ## `wt create`
 
@@ -55,3 +55,27 @@ Deletes the given worktree.
 - Fails if the branch has uncommitted or unpushed changes
 - Supports a `--force` flag that skips validation and deletes the worktree anyway.
 - Succeeds (exit 0) if the branch doesn't exist.
+
+## `wt get`
+
+```
+wt get <branch-name>
+```
+
+Prints the absolute path to the worktree for the given branch.
+
+- Returns the absolute path if the worktree exists.
+- If `branch-name` is `main` or `staging`, returns the main project's directory.
+- Prints `worktree on branch <branch-name> not found` to stderr and exits with code 1 if no worktree is found.
+
+## `wt switch`
+
+```
+wt switch <branch-name>
+```
+
+Equivalent to `wt get <branch-name>`. Prints the absolute path to the worktree so you can switch to it, e.g.:
+
+```sh
+cd $(wt switch feature-branch)
+```

@@ -7,6 +7,14 @@ predictable sibling directory.
 wt create feature-branch
 # /absolute/path/to/repo.worktrees/feature-branch
 
+wt get feature-branch
+# /absolute/path/to/repo.worktrees/feature-branch
+
+wt switch feature-branch
+# /absolute/path/to/repo.worktrees/feature-branch
+
+cd $(wt switch feature-branch)
+
 wt cleanup feature-branch
 ```
 

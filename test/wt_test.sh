@@ -164,9 +164,50 @@ test_cleanup_missing_is_success() {
 test_nested_branch_name() {
     repo=$(new_repo nested)
     path=$(cd "$repo" && "$WT" create feature/login)
-    assert_eq "$path" "$repo.worktrees/feature/login"
+    assert_eq "$path" "$repo.worktrees/feature__login"
     (cd "$repo" && "$WT" cleanup feature/login)
-    [ ! -d "$repo.worktrees/feature" ]
+    [ ! -d "$path" ]
+}
+
+test_get_worktree() {
+    repo=$(new_repo get)
+    path=$(cd "$repo" && "$WT" create feature)
+    output=$(cd "$repo" && "$WT" get feature)
+    assert_eq "$output" "$path"
+}
+
+test_get_missing_worktree() {
+    repo=$(new_repo get-missing)
+    if (cd "$repo" && "$WT" get absent >"$TMP/output" 2>"$TMP/error"); then
+        return 1
+    fi
+    assert_contains "$(cat "$TMP/error")" 'worktree on branch absent not found'
+}
+
+test_get_main_returns_repo() {
+    repo=$(new_repo get-main)
+    output=$(cd "$repo" && "$WT" get main)
+    assert_eq "$output" "$repo"
+}
+
+test_get_staging_returns_repo() {
+    repo=$(new_repo get-staging)
+    git -C "$repo" branch staging
+    output=$(cd "$repo" && "$WT" get staging)
+    assert_eq "$output" "$repo"
+}
+
+test_switch_returns_worktree_path() {
+    repo=$(new_repo switch)
+    path=$(cd "$repo" && "$WT" create feature)
+    output=$(cd "$repo" && "$WT" switch feature)
+    assert_eq "$output" "$path"
+}
+
+test_switch_main_returns_repo() {
+    repo=$(new_repo switch-main)
+    output=$(cd "$repo" && "$WT" switch main)
+    assert_eq "$output" "$repo"
 }
 
 mkdir -p "$TMP"
@@ -183,6 +224,12 @@ run_test 'force cleanup skips validation' test_force_cleanup
 run_test 'cleanup permits pushed commits' test_cleanup_pushed_commit
 run_test 'cleanup succeeds for a missing worktree' test_cleanup_missing_is_success
 run_test 'nested branch names are supported' test_nested_branch_name
+run_test 'get returns the worktree path' test_get_worktree
+run_test 'get reports missing worktree' test_get_missing_worktree
+run_test 'get main returns the repo root' test_get_main_returns_repo
+run_test 'get staging returns the repo root' test_get_staging_returns_repo
+run_test 'switch returns the worktree path' test_switch_returns_worktree_path
+run_test 'switch main returns the repo root' test_switch_main_returns_repo
 
 printf '\n%d passed, %d failed\n' "$passed" "$failed"
 [ "$failed" -eq 0 ]

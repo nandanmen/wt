@@ -11,6 +11,8 @@ usage() {
 Usage:
   $PROGRAM create [--allow-dev-branches] <branch-name>
   $PROGRAM cleanup [--force] <branch-name>
+  $PROGRAM get <branch-name>
+  $PROGRAM switch <branch-name>
 EOF
 }
 
@@ -28,6 +30,10 @@ validate_branch_name() {
     [ -n "$1" ] || die "a branch name is required"
     git check-ref-format --branch "$1" >/dev/null 2>&1 ||
         die "invalid branch name: $1"
+}
+
+worktree_name() {
+    printf '%s\n' "$1" | sed 's|/|__|g'
 }
 
 worktrees_root() {
@@ -96,7 +102,8 @@ create_worktree() {
 
     repo=$(git_root) || exit 1
     root=$(worktrees_root "$repo")
-    destination=$root/$branch
+    wt_name=$(worktree_name "$branch")
+    destination=$root/$wt_name
 
     existing=$(worktree_for_branch "$branch" || true)
     if [ -n "$existing" ]; then
@@ -185,7 +192,8 @@ cleanup_worktree() {
 
     repo=$(git_root) || exit 1
     root=$(worktrees_root "$repo")
-    destination=$root/$branch
+    wt_name=$(worktree_name "$branch")
+    destination=$root/$wt_name
 
     if [ ! -d "$destination" ]; then
         # The directory may have been removed manually. Prune any stale Git
@@ -224,6 +232,42 @@ cleanup_worktree() {
     done
 }
 
+get_worktree() {
+    branch=
+
+    while [ "$#" -gt 0 ]; do
+        case $1 in
+            -h|--help) usage; exit 0 ;;
+            --) shift; [ "$#" -gt 0 ] || die "a branch name is required"; branch=$1; shift; [ "$#" -eq 0 ] || die "too many arguments"; break ;;
+            -*) die "unknown option for get: $1" ;;
+            *) [ -z "$branch" ] || die "too many arguments"; branch=$1 ;;
+        esac
+        shift
+    done
+
+    [ -n "$branch" ] || die "a branch name is required"
+    validate_branch_name "$branch"
+
+    repo=$(git_root) || exit 1
+
+    if [ "$branch" = main ] || [ "$branch" = staging ]; then
+        printf '%s\n' "$repo"
+        return 0
+    fi
+
+    existing=$(worktree_for_branch "$branch" || true)
+    if [ -n "$existing" ]; then
+        printf '%s\n' "$existing"
+    else
+        printf 'worktree on branch %s not found\n' "$branch" >&2
+        return 1
+    fi
+}
+
+switch_worktree() {
+    get_worktree "$@"
+}
+
 main() {
     [ "$#" -gt 0 ] || { usage >&2; exit 1; }
 
@@ -232,6 +276,8 @@ main() {
     case $command in
         create) create_worktree "$@" ;;
         cleanup) cleanup_worktree "$@" ;;
+        get) get_worktree "$@" ;;
+        switch) switch_worktree "$@" ;;
         -h|--help|help) usage ;;
         *) die "unknown command: $command" ;;
     esac
