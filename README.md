@@ -1,7 +1,7 @@
 # wt
 
-`wt` is a dependency-free CLI for creating and cleaning up Git worktrees in a
-predictable sibling directory.
+`wt` is a CLI for creating and cleaning up Git worktrees in a predictable
+sibling directory.
 
 ```sh
 wt create feature-branch
@@ -37,7 +37,13 @@ wt cleanup --force experiment
 
 ## Install
 
-Copy `wt` somewhere on your `PATH`, or run:
+Requires [Rust](https://www.rust-lang.org/tools/install) and Git.
+
+```sh
+cargo install --path .
+```
+
+Or:
 
 ```sh
 make install PREFIX="$HOME/.local"
