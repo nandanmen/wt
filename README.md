@@ -37,7 +37,10 @@ wt cleanup --force experiment
 
 ## Install
 
-Requires [Rust](https://www.rust-lang.org/tools/install) and Git.
+Requires [Rust](https://www.rust-lang.org/tools/install), a C compiler, and
+CMake (to build [libgit2](https://libgit2.org/) via the `git2` crate). Git is
+only needed to create and work in repositories; `wt` talks to them through
+libgit2 instead of parsing `git` command output.
 
 ```sh
 cargo install --path .
