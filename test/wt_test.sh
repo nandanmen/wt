@@ -202,19 +202,6 @@ test_get_staging_returns_repo() {
     assert_eq "$output" "$repo"
 }
 
-test_switch_returns_worktree_path() {
-    repo=$(new_repo switch)
-    path=$(cd "$repo" && "$WT" create feature)
-    output=$(cd "$repo" && "$WT" switch feature)
-    assert_eq "$output" "$path"
-}
-
-test_switch_main_returns_repo() {
-    repo=$(new_repo switch-main)
-    output=$(cd "$repo" && "$WT" switch main)
-    assert_eq "$output" "$repo"
-}
-
 mkdir -p "$TMP"
 TMP=$(CDPATH= cd -- "$TMP" && pwd -P)
 run_test 'create makes a sibling worktree' test_create
@@ -233,8 +220,6 @@ run_test 'get returns the worktree path' test_get_worktree
 run_test 'get reports missing worktree' test_get_missing_worktree
 run_test 'get main returns the repo root' test_get_main_returns_repo
 run_test 'get staging returns the repo root' test_get_staging_returns_repo
-run_test 'switch returns the worktree path' test_switch_returns_worktree_path
-run_test 'switch main returns the repo root' test_switch_main_returns_repo
 
 printf '\n%d passed, %d failed\n' "$passed" "$failed"
 [ "$failed" -eq 0 ]

@@ -21,9 +21,6 @@ enum Command {
     Get {
         branch_name: String,
     },
-    Switch {
-        branch_name: String,
-    },
 }
 
 fn main() -> ExitCode {
@@ -58,7 +55,6 @@ fn run(command: Command) -> Result<()> {
         } => commands::create(&branch_name, allow_dev_branches),
         Command::Cleanup { force, branch_name } => commands::cleanup(&branch_name, force),
         Command::Get { branch_name } => commands::get(&branch_name),
-        Command::Switch { branch_name } => commands::get(&branch_name),
     }
 }
 
@@ -83,8 +79,6 @@ fn parse_args(args: Vec<String>) -> Result<Option<Command>> {
         ),
         "get" => Ok(parse_command_args(args.collect(), "get", None)?
             .map(|(_, branch_name)| Command::Get { branch_name })),
-        "switch" => Ok(parse_command_args(args.collect(), "switch", None)?
-            .map(|(_, branch_name)| Command::Switch { branch_name })),
         "-h" | "--help" | "help" => {
             usage()?;
             Ok(None)
@@ -157,8 +151,7 @@ fn write_usage(writer: &mut impl Write) -> io::Result<()> {
 Usage:
   wt create [--allow-dev-branches] <branch-name>
   wt cleanup [--force] <branch-name>
-  wt get <branch-name>
-  wt switch <branch-name>"
+  wt get <branch-name>"
     )
 }
 
@@ -200,5 +193,11 @@ mod tests {
     fn parse_rejects_unknown_options() {
         let err = parse_args(vec!["cleanup".into(), "--nope".into(), "feat".into()]).unwrap_err();
         assert!(err.to_string().contains("unknown option for cleanup"));
+    }
+
+    #[test]
+    fn parse_rejects_removed_switch_command() {
+        let err = parse_args(vec!["switch".into(), "feat".into()]).unwrap_err();
+        assert!(err.to_string().contains("unknown command: switch"));
     }
 }

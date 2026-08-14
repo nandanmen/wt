@@ -10,10 +10,7 @@ wt create feature-branch
 wt get feature-branch
 # /absolute/path/to/repo.worktrees/feature-branch
 
-wt switch feature-branch
-# /absolute/path/to/repo.worktrees/feature-branch
-
-cd $(wt switch feature-branch)
+cd $(wt get feature-branch)
 
 wt cleanup feature-branch
 ```
