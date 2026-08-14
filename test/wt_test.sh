@@ -2,7 +2,12 @@
 
 set -eu
 
-WT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)/wt
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+WT=${WT:-"$ROOT/target/debug/wt"}
+if [ ! -x "$WT" ]; then
+    printf 'wt binary not found at %s; run cargo build first\n' "$WT" >&2
+    exit 1
+fi
 TMP=${TMPDIR:-/tmp}/wt-tests-$$
 passed=0
 failed=0

@@ -1,10 +1,16 @@
-.PHONY: test install
+.PHONY: test install build
 
 PREFIX ?= /usr/local
+CARGO ?= cargo
+
+build:
+	$(CARGO) build --release
 
 test:
-	./test/wt_test.sh
+	$(CARGO) test
+	$(CARGO) build
+	WT="$(CURDIR)/target/debug/wt" ./test/wt_test.sh
 
-install:
+install: build
 	install -d "$(DESTDIR)$(PREFIX)/bin"
-	install -m 755 wt "$(DESTDIR)$(PREFIX)/bin/wt"
+	install -m 755 target/release/wt "$(DESTDIR)$(PREFIX)/bin/wt"

@@ -1,0 +1,15 @@
+[package]
+name = "wt"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.83"
+description = "A small Git worktree manager"
+
+[dependencies]
+git2 = { version = "0.19.0", default-features = false, features = ["vendored-libgit2"] }
+
+# git2 0.19 pulls crates whose latest patch releases need a newer rustc than
+# 1.83. Pin the ones that otherwise resolve to edition 2024.
+url = "=2.4.1"
+cc = "=1.2.16"
+jobserver = "=0.1.32"
